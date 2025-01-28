@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
 using Walks.API.Data;
 using Walks.API.Models.Domain;
@@ -21,10 +22,10 @@ namespace Walks.API.Controllers
         //GET : https://localhost:portnumber/api/regions
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             //Get Data From Databse - Domain Models
-            var regionsDomain = _context.Regions.ToList();
+            var regionsDomain = await _context.Regions.ToListAsync();
 
             //Map Domain Model to DTOs
             var regionsDto = new List<RegionDto>();
@@ -50,11 +51,11 @@ namespace Walks.API.Controllers
 
         [HttpGet]
         [Route("{id:Guid}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             //var region = _context.Regions.Find(id);
             //Get region Domain model from Database
-            var region = _context.Regions.FirstOrDefault(x => x.Id == id);
+            var region = await _context.Regions.FirstOrDefaultAsync(x => x.Id == id);
 
             if (region == null)
             {
@@ -78,7 +79,7 @@ namespace Walks.API.Controllers
         //Post To Create New Region
         //Post : https://localhost:portnumber/api/regions
         [HttpPost]
-        public IActionResult Create([FromBody] AddRegionRequestDto addRegionRequestDto)
+        public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
         {
             //Map or Convert DTO to Domain Model
             var regionDomainModel = new Region
@@ -89,8 +90,8 @@ namespace Walks.API.Controllers
             };
 
             //Use Domain Model to create Region
-            _context.Regions.Add(regionDomainModel);
-            _context.SaveChanges();
+           await _context.Regions.AddAsync(regionDomainModel);
+           await  _context.SaveChangesAsync();
 
 
             //Map Domain model back to DTO
@@ -109,10 +110,10 @@ namespace Walks.API.Controllers
         //PUT : https://localhost:portnumber/api/regions/{id}
         [HttpPut]
         [Route("{id:Guid}")]
-        public IActionResult Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
             //Check if region exists
-            var regionDomainModel = _context.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomainModel = await _context.Regions.FirstOrDefaultAsync(x => x.Id == id);
 
             if (regionDomainModel == null)
             {
@@ -125,7 +126,7 @@ namespace Walks.API.Controllers
             regionDomainModel.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
 
 
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
 
 
             //Convert Domain Model to DTO
@@ -145,9 +146,9 @@ namespace Walks.API.Controllers
         //DELETE : https:localhost:portnumber/api/regiosn/{id}
         [HttpDelete]
         [Route("{id:guid}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var regionDomainModel = _context.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomainModel = await _context.Regions.FirstOrDefaultAsync(x => x.Id == id);
 
             if (regionDomainModel == null)
             {
@@ -156,7 +157,7 @@ namespace Walks.API.Controllers
 
             //Delete Region
             _context.Regions.Remove(regionDomainModel);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             //Return the deleted region back
             //map domain model to DTO 
