@@ -15,6 +15,7 @@ namespace Walks.API.Data
         public DbSet<Walk> Walks { get; set; }
 
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
